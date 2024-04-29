@@ -3,9 +3,9 @@ const { faker } = require('@faker-js/faker');
 // Declaring variables
 const username = faker.internet.userName();
 const email = faker.internet.email();
-const firstName = faker.name.firstName();
-const lastName = faker.name.lastName();
-const phoneNumber = faker.datatype.number({ min: 0, max: 9999999999 });
+const firstName = faker.person.firstName();
+const lastName = faker.person.lastName();
+const phoneNumber = faker.number.int({ min: 0, max: 9999999999 });
 let password = faker.internet.password();
 
 
