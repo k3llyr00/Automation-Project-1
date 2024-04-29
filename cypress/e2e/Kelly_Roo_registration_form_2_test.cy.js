@@ -17,7 +17,7 @@ beforeEach(() => {
 Assignement 4: add content to the following tests
 */
 
-describe.skip('Section 1: Functional tests', () => {
+describe('Section 1: Functional tests', () => {
 
     it('User can use only same both first and validation passwords', ()=>{
         // Steps for filling in only mandatory fields
@@ -113,20 +113,27 @@ Assignement 5: create more visual tests
 */
 
 describe('Section 2: Visual tests', () => {
-    it('Check that logo is correct and has correct size', () => {
+    it('Check that Cerebrum Hub logo is correct and has correct size', () => {
         cy.log('Will check logo source and size')
-        cy.get('img').should('have.attr', 'src').should('include', 'cerebrum_hub_logo')
-        // get element and check its parameter height
-        // it should be less than 178 and greater than 100
-        cy.get('img').invoke('height').should('be.lessThan', 178)
-            .and('be.greaterThan', 100)   
+        cy.get('#logo').should('have.attr', 'src').should('include', 'cerebrum_hub_logo')
+        // get element and check its parameter height it should be less than 178 and greater than 100
+        cy.get('#logo').invoke('height').should('be.lessThan', 178).and('be.greaterThan', 100)   
+        // get element and check its parameter width it should be less than 177 and greater than 179
+        cy.get('#logo').invoke('width').should('be.gte', 177).and('be.lte', 179)
     })
 
-    it('My test for second picture', () => {
+    it('Check that Cypress logo is correct and has correct size', () => {
         // Create similar test for checking the second picture
+        cy.log('Will check second logo source and size')
+        cy.get('[data-cy="cypress_logo"]').should('have.attr', 'src').should('include', 'cypress_logo')
+        // get element and check its parameter height it should be less than 89 and greater than 87
+        cy.get('[data-cy="cypress_logo"]').invoke('height').should('be.gte', 87).and('be.lte', 89)
+        // get element and check its parameter width it should be less than 117 and greater than 115
+        cy.get('[data-cy="cypress_logo"]').invoke('width').should('be.gte', 115).and('be.lte', 117)
+
     });
 
-    it('Check navigation part', () => {
+    it('Check navigation for first link', () => {
         cy.get('nav').children().should('have.length', 2)
 
         // Get navigation element, find siblings that contains h1 and check if it has Registration form in string
@@ -141,11 +148,26 @@ describe('Section 2: Visual tests', () => {
         cy.url().should('contain', '/registration_form_1.html')
         
         // Go back to previous page
-        cy.go('back')
+        cy.go('back').url().should('contain', '/registration_form_2.html');
         cy.log('Back again in registration form 2')
     })
 
-    // Create similar test for checking the second link 
+    it('Check navigation for second link:', () => {
+        // Get navigation element, find its second child, check the link content and click it
+        cy.get('nav').children().eq(1).should('be.visible')
+            .and('have.attr', 'href', 'registration_form_3.html')
+            .click()
+
+        // Check that currently opened URL is correct
+        cy.url().should('contain', '/registration_form_3.html')
+
+        // Check that the title (h1) contains Registration page
+        cy.get('div>h1').should('contains.text', 'Registration page')
+        
+        // Go back to previous page
+        cy.go('back').url().should('contain', '/registration_form_2.html');
+        cy.log('Back again in registration form 2')
+    })
 
     it('Check that radio button list is correct', () => {
         // Array of found elements with given selector has 4 elements in total
@@ -169,7 +191,25 @@ describe('Section 2: Visual tests', () => {
         cy.get('input[type="radio"]').eq(0).should('not.be.checked')
     })
 
-    // Create test similar to previous one verifying check boxes
+    it('Check that checkbox button list is correct', () => {
+        // Array of found elements with given selector has 3 elements in total
+        cy.get('input[type="checkbox"]').should('have.length', 3)
+
+        // Verify labels of the radio buttons
+        cy.get('input[type="checkbox"]').next().eq(0).should('have.text','I have a bike')
+        cy.get('input[type="checkbox"]').next().eq(1).should('have.text','I have a car')
+        cy.get('input[type="checkbox"]').next().eq(2).should('have.text','I have a boat')
+
+        //Verify default state of radio buttons
+        cy.get('input[type="checkbox"]').eq(0).should('not.be.checked')
+        cy.get('input[type="checkbox"]').eq(1).should('not.be.checked')
+        cy.get('input[type="checkbox"]').eq(2).should('not.be.checked')
+
+        // Selecting one will not remove selection from the other checkbox button
+        cy.get('input[type="checkbox"]').eq(0).check().should('be.checked')
+        cy.get('input[type="checkbox"]').eq(1).check().should('be.checked')
+        cy.get('input[type="checkbox"]').eq(0).should('be.checked')
+    })
 
     it('Car dropdown is correct', () => {
         // Here is just an example how to explicitely create screenshot from the code
@@ -192,9 +232,26 @@ describe('Section 2: Visual tests', () => {
         })
     })
 
-    // Create test similar to previous one
+    it('Favourite animal dropdown is correct', () => {
+        // Create screenshot from the code: select third element and create screenshot for this area or full page
+        cy.get('#animal').select(2).screenshot('Animal drop-down, third value')
+        cy.screenshot('Full page screenshot')
+
+        // Get the length of array of elements in Cars dropdown
+        cy.get('#animal').children().should('have.length', 6)
+
+        // Check  that first element in the dropdown has text Volvo
+        cy.get('#animal').find('option').eq(0).should('have.text', 'Dog')
+        
+        // Advanced level how to check the content of the Cars dropdown
+        cy.get('#animal').find('option').then(options => {
+            const actual = [...options].map(option => option.text)
+            expect(actual).to.deep.eq(['Dog', 'Cat', 'Snake', 'Hippo', 'Cow', 'Horse'])
+        })
+    })
 
 })
+
 
 function inputValidData() {
     cy.log('Username will be filled')
