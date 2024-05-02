@@ -95,7 +95,7 @@ describe('Visual tests for registration form 3', () => {
 
     });
 
-    it('Dropdown and dependencies', () => {
+    it.only('Dropdown and dependencies', () => {
         // Assert on options
         cy.get('#country').find('option').should('have.length', 4)
         cy.get('#country').find('option').then(options => {
@@ -152,6 +152,13 @@ describe('Visual tests for registration form 3', () => {
             const actual = [...options].map(option => option.text)
             expect(actual).to.not.include('Vienna')
         });
+
+        //Selecting multiple options
+        cy.get('#city')
+        .select(['Tallinn', 'Haapsalu'])
+        .invoke('val')
+        .should('deep.equal', ['string:Tallinn', 'string:Haapsalu']) //verifying the outcome
+        
     });    
     
 })
@@ -167,7 +174,7 @@ Task list:
     * add file functionlity(google yourself for solution!)
  */
 
-describe.skip('Functional tests for registration form 3', () => {
+describe('Functional tests for registration form 3', () => {
     it('title', () => {
         // to-do
     });
