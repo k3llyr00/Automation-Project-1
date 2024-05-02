@@ -1,12 +1,12 @@
-const { faker } = require('@faker-js/faker');
+const { faker } = require('@faker-js/faker')
 
 // Declaring variables
-const username = faker.internet.userName();
-const email = faker.internet.email();
-const firstName = faker.person.firstName();
-const lastName = faker.person.lastName();
-const phoneNumber = faker.number.int({ min: 0, max: 9999999999 });
-let password = faker.internet.password();
+const username = faker.internet.userName()
+const email = faker.internet.email()
+const firstName = faker.person.firstName()
+const lastName = faker.person.lastName()
+const phoneNumber = faker.number.int({ min: 0, max: 9999999999 })
+let password = faker.internet.password()
 
 
 beforeEach(() => {
@@ -41,7 +41,7 @@ describe('Section 1: Functional tests', () => {
         // Change the test, so the passwords would match
         cy.get('[name="confirm"]').clear()
         cy.get('[name="confirm"]').type(password)
-        cy.contains('Password section').click();
+        cy.contains('Password section').click()
         // Add assertion, that error message is not visible anymore
         cy.get('#password_error_message').should('not.be.visible')
         // Add assertion, that submit button is now enabled
@@ -57,12 +57,12 @@ describe('Section 1: Functional tests', () => {
         cy.get('[data-testid="phoneNumberTestId"]').type(phoneNumber)
         cy.get('#phpFavLanguage').check()
         cy.get('#vehicle2').check()
-        cy.get( '#cars' ).select( 'Audi' ); // optional step, because this field is already filled
-        cy.get( '#animal' ).select( 'Snake' ); // optional step, because this field is already filled
+        cy.get( '#cars' ).select( 'Audi' ) // optional step, because this field is already filled
+        cy.get( '#animal' ).select( 'Snake' ) // optional step, because this field is already filled
         cy.get('input[name="password"]').type(password)
         cy.get('[name="confirm"]').type(password)
         // Assert that submit button is enabled
-        cy.contains('Password section').click();
+        cy.contains('Password section').click()
         cy.get('.submit_button').should('be.enabled')
         // Assert that after submitting the form system show successful message
         cy.get('.submit_button').click()
