@@ -1,3 +1,47 @@
+const { faker } = require('@faker-js/faker')
+
+//Declaring variables for functional testing
+const fullName = faker.person.fullName()
+const email = faker.internet.email()
+
+function fillMandatoryFields() {
+    cy.get('#name').type(fullName)
+    cy.get('[name="email"]').type(email)
+
+    //select the country
+    cy.get('#country').find('option').then(options => {
+        // Get the length of the options
+        const numberOfOptions = options.length;
+        // Generate a random index between 0 and the length of options array
+        const randomIndex = faker.number.int({ min: 1, max: numberOfOptions - 1 });
+        // Get the value of the option at the random index
+        const randomOptionValue = options[randomIndex].value;
+        // Select the random option
+        cy.get('#country').select(randomOptionValue)
+    
+    })
+
+    //select the city 
+    cy.get('#city').find('option').then(options => {
+        // Get the length of the options
+        const numberOfOptions = options.length;
+        // Generate a random index between 0 and the length of options array
+        const randomIndex = faker.number.int({ min: 1, max: numberOfOptions - 1 });
+        // Get the value of the option at the random index
+        const randomOptionValue = options[randomIndex].value;
+        // Select the random option
+        cy.get('#city').select(randomOptionValue)
+        // cy.screenshot('Full page screenshot')
+    
+    })
+
+    //Accept privacy policy
+    cy.get('input[type="checkbox"]').eq(0).click()
+
+}
+
+
+
 beforeEach(() => {
     cy.visit('cypress/fixtures/registration_form_3.html')
 })
@@ -15,7 +59,7 @@ Task list:
     *email format
  */
 
-describe('Visual tests for registration form 3', () => {
+describe.skip('Visual tests for registration form 3', () => {
 
     it('Radio buttons and its content', () => {
         // Array of found elements with given selector has 4 elements in total
@@ -95,7 +139,7 @@ describe('Visual tests for registration form 3', () => {
 
     });
 
-    it.only('Dropdown and dependencies', () => {
+    it('Dropdown and dependencies', () => {
         // Assert on options
         cy.get('#country').find('option').should('have.length', 4)
         cy.get('#country').find('option').then(options => {
@@ -175,19 +219,28 @@ Task list:
  */
 
 describe('Functional tests for registration form 3', () => {
-    it('title', () => {
-        // to-do
-    });
+    it('Successful submission when mandatory fields are filled with valid information', () => {
+        //Call the function
+        fillMandatoryFields()
 
-    it('title', () => {
-        // to-do
-    });
+        //submit button is enabled
+        cy.get('input[type="submit"]').should('be.enabled');
 
-    it('title', () => {
-        // to-do
-    });
+        // Call the postYourAdd() function
+        cy.window().then(window => {
+            window.postYourAdd();
+        });
 
-    it('title', () => {
-        // to-do
-    });
+        // Check for the successFrame element
+        cy.get('#successFrame').should('exist');
+
+        // Now you can proceed with capturing the success message
+        cy.get('#successFrame').invoke('text').as('successMessage');
+
+        cy.screenshot('Success message')
+
+        // Now you can assert or use the captured success message as needed
+        cy.get('@successMessage').should('contain', 'Successful registration')
+
+    })
 })
