@@ -4,128 +4,123 @@ const { faker } = require('@faker-js/faker')
 const fullName = faker.person.fullName()
 const email = faker.internet.email()
 
+//********** Functions using in functions (repeatedly) **********
 
-//********** Functions **********
+// function to validate the expected options of the city dropdown list after a country is selected
+function cityDropdownOptions(expectedOptions) {
+    cy.get('#city').find('option').should('have.length', expectedOptions.length)
+    cy.get('#city').find('option').then(options => {
+        const actual = [...options].map(option => option.text)
+        expect(actual).to.deep.eq(expectedOptions)
+    })
+}
+
+// function for selecting random country and city
+function selectRandomOption(selectElementId) {
+    cy.get(`#${selectElementId}`).find('option').then(options => {
+        // Get the length of the options
+        const numberOfOptions = options.length
+        // Generate a random index between 0 and the length of options array
+        const randomIndex = faker.datatype.number({ min: 1, max: numberOfOptions - 1 })
+        // Get the value of the option at the random index
+        const randomOptionValue = options[randomIndex].value
+        // Select the random option
+        cy.get(`#${selectElementId}`).select(randomOptionValue)
+    })
+}
+
+// function for today's date
+function getFormattedDate() {
+    const today = new Date()
+    const year = today.getFullYear()
+    const month = String(today.getMonth() + 1).padStart(2, '0')
+    const day = String(today.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
+
+// function for choosing birthday date randomly
+function getRandomDate() {
+    const today = new Date()
+    const minYear = 1900;
+    const maxYear = today.getFullYear()
+    const randomYear = faker.number.int({ min: minYear, max: maxYear })
+    const randomMonth = faker.number.int({ min: 1, max: 12 })
+    const randomDay = faker.number.int({ min: 1, max: new Date(randomYear, randomMonth, 0).getDate() })
+    const formattedMonth = String(randomMonth).padStart(2, '0')
+    const formattedDay = String(randomDay).padStart(2, '0')
+    return `${randomYear}-${formattedMonth}-${formattedDay}`
+}
+
+// function for selecting the sequence of newsletter randomly
+function selectNewsletterSequence(radioButtonSelector) {
+    cy.get(radioButtonSelector).then(radioButtons => {
+        // Get the length of the radio buttons
+        const numberOfButtons = radioButtons.length
+        // Generate a random index between 0 and the length of the radio buttons array
+        const randomIndex = faker.number.int({ min: 0, max: numberOfButtons - 1 })
+        // Get the random radio button element
+        const randomRadioButton = radioButtons[randomIndex]
+        // Select the random radio button
+        cy.wrap(randomRadioButton).check()
+    })
+}
+
+//********** Functions using in test cases **********
+
+// only mandatory fields
 function fillMandatoryFields() {
     cy.get('#name').type(fullName)
     cy.get('[name="email"]').type(email)
-
-    //select the country
-    cy.get('#country').find('option').then(options => {
-        // Get the length of the options
-        const numberOfOptions = options.length;
-        // Generate a random index between 0 and the length of options array
-        const randomIndex = faker.number.int({ min: 1, max: numberOfOptions - 1 });
-        // Get the value of the option at the random index
-        const randomOptionValue = options[randomIndex].value;
-        // Select the random option
-        cy.get('#country').select(randomOptionValue)
-    
-    })
-
-    //select the city 
-    cy.get('#city').find('option').then(options => {
-        // Get the length of the options
-        const numberOfOptions = options.length;
-        // Generate a random index between 0 and the length of options array
-        const randomIndex = faker.number.int({ min: 1, max: numberOfOptions - 1 });
-        // Get the value of the option at the random index
-        const randomOptionValue = options[randomIndex].value;
-        // Select the random option
-        cy.get('#city').select(randomOptionValue)
-        // cy.screenshot('Full page screenshot')
-    
-    })
-
-    //Accept privacy policy
+    selectRandomOption('country')
+    selectRandomOption('city')
     cy.get('input[type="checkbox"]').eq(0).click()
-
 }
+
 // Fill all data without uploading file
 function fillAllFields() { 
     cy.get('#name').type(fullName)
     cy.get('[name="email"]').type(email)
-
-    //select the country
-    cy.get('#country').find('option').then(options => {
-        // Get the length of the options
-        const numberOfOptions = options.length;
-        // Generate a random index between 0 and the length of options array
-        const randomIndex = faker.number.int({ min: 1, max: numberOfOptions - 1 });
-        // Get the value of the option at the random index
-        const randomOptionValue = options[randomIndex].value;
-        // Select the random option
-        cy.get('#country').select(randomOptionValue)
-    
-    })
-
-    //select the city 
-    cy.get('#city').find('option').then(options => {
-        // Get the length of the options
-        const numberOfOptions = options.length;
-        // Generate a random index between 0 and the length of options array
-        const randomIndex = faker.number.int({ min: 1, max: numberOfOptions - 1 });
-        // Get the value of the option at the random index
-        const randomOptionValue = options[randomIndex].value;
-        // Select the random option
-        cy.get('#city').select(randomOptionValue)
-        // cy.screenshot('Full page screenshot')
-    
-    })
+    selectRandomOption('country')
+    selectRandomOption('city')
 
     //Date of registration
     cy.get('label').contains('Date of registration').siblings('input').click()
-    
-    // function for today's date
-    function getFormattedDate() {
-        const today = new Date();
-        const year = today.getFullYear();
-        const month = String(today.getMonth() + 1).padStart(2, '0');
-        const day = String(today.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
-    }
-
     //Click on calendar and type in todays date
     cy.get('label').contains('Date of registration').siblings('input').type(getFormattedDate())
 
-    //select the sequence of newsletter
-    cy.get('input[type="radio"]').then(radioButtons => {
-        // Get the length of the radio buttons
-        const numberOfButtons = radioButtons.length;
-        // Generate a random index between 0 and the length of the radio buttons array
-        const randomIndex = faker.number.int({ min: 0, max: numberOfButtons - 1 });
-        // Get the value of the radio button at the random index
-        const randomRadioButton = radioButtons[randomIndex];
-        // Select the random radio button
-        cy.wrap(randomRadioButton).check(); // Assuming you want to select the radio button
-    });
+    //The sequence of newsletter
+    selectNewsletterSequence('input[type="radio"]')
 
     //Select the birthday
     cy.get('#birthday').click()
-
-    // function for choosing birthday date
-    function getRandomDate() {
-        const today = new Date();
-        const minYear = 1900;
-        const maxYear = today.getFullYear();
-        const randomYear = faker.number.int({ min: minYear, max: maxYear });
-        const randomMonth = faker.number.int({ min: 1, max: 12 });
-        const randomDay = faker.number.int({ min: 1, max: new Date(randomYear, randomMonth, 0).getDate() });
-        const formattedMonth = String(randomMonth).padStart(2, '0');
-        const formattedDay = String(randomDay).padStart(2, '0');
-        return `${randomYear}-${formattedMonth}-${formattedDay}`;
-    }
-
     //Click on calendar and type in todays date
     cy.get('#birthday').type(getRandomDate())
 
     //Accept privacy and cookie policy
     cy.get('input[type="checkbox"]').eq(0).click()
     cy.get('input[type="checkbox"]').eq(1).click()
-
 }
 
-// //********** The beginning of tests **********
+// optional fields
+function onlyOptionalFields() {
+    //Date of registration
+    cy.get('label').contains('Date of registration').siblings('input').click()
+    //Click on calendar and type in todays date
+    cy.get('label').contains('Date of registration').siblings('input').type(getFormattedDate())
+
+    //The sequence of newsletter
+    selectNewsletterSequence('input[type="radio"]')
+
+    //Select the birthday
+    cy.get('#birthday').click()
+    //Click on calendar and type in todays date
+    cy.get('#birthday').type(getRandomDate())
+
+    //Accept privacy and cookie policy
+    cy.get('input[type="checkbox"]').eq(1).click()
+}
+
+//********** The beginning of tests **********
 
 beforeEach(() => {
     cy.visit('cypress/fixtures/registration_form_3.html')
@@ -144,56 +139,50 @@ Task list:
     *email format
  */
 
-describe.skip('Visual tests for registration form 3', () => {
+describe('Visual tests for registration form 3', () => {
 
-    it('Radio buttons and its content', () => {
-        // Array of found elements with given selector has 4 elements in total
+    it('Check radio buttons functionality and content consistency', () => {
+        // Ensure there are four radio buttons present
         cy.get('input[type="radio"]').should('have.length', 4)
         
-        //Check that radio buttons have expected content (version 1)
+        // Check that radio buttons have expected values (version 1)
         cy.get('input[type="radio"]').then($radioButtons => {
-            const actual = $radioButtons.toArray().map(radioButton => radioButton.value);
-            expect(actual).to.deep.eq(['Daily', 'Weekly', 'Monthly', 'Never']);
+            const actual = $radioButtons.toArray().map(radioButton => radioButton.value)
+            expect(actual).to.deep.eq(['Daily', 'Weekly', 'Monthly', 'Never'])
         });
 
-        // Verify labels of the radio buttons (version 2)
-        cy.get('input[type="radio"]').next().eq(0).should('have.text','Daily')
-        cy.get('input[type="radio"]').next().eq(1).should('have.text','Weekly')
-        cy.get('input[type="radio"]').next().eq(2).should('have.text','Monthly')
-        cy.get('input[type="radio"]').next().eq(3).should('have.text','Never')
-
-        //Verify default state of radio buttons
+        // Verify default state of radio buttons
         cy.get('input[type="radio"]').eq(0).should('not.be.checked')
         cy.get('input[type="radio"]').eq(1).should('not.be.checked')
         cy.get('input[type="radio"]').eq(2).should('not.be.checked')
         cy.get('input[type="radio"]').eq(3).should('not.be.checked')
 
-        // Selecting one will remove selection from the other radio button
+        // Selecting one radio button should deselect others
         cy.get('input[type="radio"]').eq(0).check().should('be.checked')
         cy.get('input[type="radio"]').eq(1).check().should('be.checked')
         cy.get('input[type="radio"]').eq(0).should('not.be.checked')
 
     });
 
-    it('Checkboxes and its content, links', () => {
-        // Array of found elements with given selector has 4 elements in total
+    it('Verify checkboxes, their labels, and associated links', () => {
+        // Ensure there are two checkboxes present
         cy.get('input[type="checkbox"]').should('have.length', 2)
 
-        // Verify labels of the radio buttons
+        // Verify labels of the checkboxes
         cy.get('.w3-cell-row').prev('div').should('have.text',
         '\n                Accept our privacy policy\n                \n                Accept our cookie policy\n                \n                    \n                \n            ')
         cy.get('input[type="checkbox"]').next().eq(1).should('have.text','Accept our cookie policy')
 
-        //Verify default state of radio buttons
+        // Verify default state of checkboxes
         cy.get('input[type="checkbox"]').eq(0).should('not.be.checked')
         cy.get('input[type="checkbox"]').eq(1).should('not.be.checked')
 
-        // Selecting one will remove selection from the other radio button
+        // Selecting one checkbox should not deselect the other
         cy.get('input[type="checkbox"]').eq(0).check().should('be.checked')
         cy.get('input[type="checkbox"]').eq(1).check().should('be.checked')
         cy.get('input[type="checkbox"]').eq(0).should('be.checked')
 
-        // Check the checkbox link
+        // Check the checkbox link and verify URL
         cy.get('button a').should('be.visible')
             .and('have.attr', 'href', 'cookiePolicy.html')
             .click()
@@ -201,95 +190,73 @@ describe.skip('Visual tests for registration form 3', () => {
         // Check that currently opened URL is correct
         cy.url().should('contain', '/cookiePolicy.html')
         
-        // Go back to previous page
-        cy.go('back').url().should('contain', '/registration_form_3.html');
+        // Go back to previous page and verify URL
+        cy.go('back').url().should('contain', '/registration_form_3.html')
         cy.log('Back again in registration form 3')
-
     });
 
-    it('Email format', () => {
-        // Attempting to enter an Invalid email and appropriate error message should appear
+    it('Validates email input field', () => {
+        // Entering an invalid email should display an appropriate error message
         cy.get('input[name="email"]').type('@email')
-        cy.get('span[ng-show="myForm.email.$error.email"]').should('have.text', 'Invalid email address.').should('have.css', 'color', 'rgb(255, 0, 0)');
+        cy.get('span[ng-show="myForm.email.$error.email"]').should('have.text', 'Invalid email address.').should('have.css', 'color', 'rgb(255, 0, 0)')
         // Attempting to enter an empty email and appropriate error message should appear
         cy.get('input[name="email"]').type(' ')
-        cy.get('span[ng-show="myForm.email.$error.required"]').should('have.text', 'Email is required.').should('have.css', 'color', 'rgb(255, 0, 0)');
+        cy.get('span[ng-show="myForm.email.$error.required"]').should('have.text', 'Email is required.').should('have.css', 'color', 'rgb(255, 0, 0)')
 
-        // Entering correct email
+        // Entering a valid email should not display any error message
         cy.get('input[name="email"]').clear()
         cy.get('input[name="email"]').type('correct@email.com')
-        cy.get('span[ng-show="myForm.email.$error.email"]').should('not.be.visible');
-        cy.get('span[ng-show="myForm.email.$error.required"]').should('not.be.visible');
-
-
+        cy.get('span[ng-show="myForm.email.$error.email"]').should('not.be.visible')
+        cy.get('span[ng-show="myForm.email.$error.required"]').should('not.be.visible')
     });
 
-    it('Dropdown and dependencies', () => {
-        // Assert on options
+    it('Check dropdown selection and its dependencies', () => {
+        // Assert on options available in the country dropdown
         cy.get('#country').find('option').should('have.length', 4)
         cy.get('#country').find('option').then(options => {
             const actual = [...options].map(option => option.text)
             expect(actual).to.deep.eq(['', 'Spain', 'Estonia', 'Austria'])
         })
 
-        // Select empty string from country dropdown
+        // Select an empty string from the country dropdown
         cy.get('#country').select('')
 
-        // Assert on options in city dropdown, when country is empty string
+        // Assert on options in the city dropdown when the country is an empty string
         cy.get('#city').find('option')
         .should('have.length', 1) // Ensure there's only one option
         .should('have.text', '') // Ensure the text of the option is empty
 
         //Select Spain and verify dependencies
         cy.get('#country').select('Spain')
+        // Assert on options in the city dropdown when the country is Spain
+        cityDropdownOptions(['', 'Malaga', 'Madrid', 'Valencia', 'Corralejo']);
 
-        // Assert on options in city dropdown, when country is Spain
-        cy.get('#city').find('option').should('have.length', 5)
-        cy.get('#city').find('option').then(options => {
-            const actual = [...options].map(option => option.text)
-            expect(actual).to.deep.eq(['', 'Malaga', 'Madrid', 'Valencia', 'Corralejo'])
-
-        })
 
         //Select Estonia and verify dependencies
         cy.get('#country').select('Estonia')
-
-        // Assert on options in city dropdown,, when country is Estonia
-        cy.get('#city').find('option').should('have.length', 4)
-        cy.get('#city').find('option').then(options => {
-            const actual = [...options].map(option => option.text)
-            expect(actual).to.deep.eq(['', 'Tallinn', 'Haapsalu', 'Tartu'])
-
-        })
+        // Assert on options in the city dropdown when the country is Estonia
+        cityDropdownOptions(['', 'Tallinn', 'Haapsalu', 'Tartu']);
 
         //Select Austria and verify dependencies
         cy.get('#country').select('Austria')
+        // Assert on options in the city dropdown when the country is Austria
+        cityDropdownOptions(['', 'Vienna', 'Salzburg', 'Innsbruck']);
 
-        // Assert on options in city dropdown, when country is Austria
-        cy.get('#city').find('option').should('have.length', 4)
-        cy.get('#city').find('option').then(options => {
-            const actual = [...options].map(option => option.text)
-            expect(actual).to.deep.eq(['', 'Vienna', 'Salzburg', 'Innsbruck'])
- 
-        })
-
-        // if city is already chosen and country is updated, then city choice should be removed
+        // If the city is already chosen and the country is updated, then the city choice should be removed
         cy.get('#city').select('Vienna')
         cy.get('#country').select('Estonia')
 
         cy.get('#city').find('option').then(options => {
             const actual = [...options].map(option => option.text)
             expect(actual).to.not.include('Vienna')
-        });
+        })
 
         //Selecting multiple options
         cy.get('#city')
         .select(['Tallinn', 'Haapsalu'])
         .invoke('val')
-        .should('deep.equal', ['string:Tallinn', 'string:Haapsalu']) //verifying the outcome
-        
-    });    
-    
+        .should('deep.equal', ['string:Tallinn', 'string:Haapsalu']) //verifying the outcome     
+    })
 })
 
 /*
@@ -309,18 +276,18 @@ describe('Functional tests for registration form 3', () => {
         fillMandatoryFields()
 
         //submit button is enabled
-        cy.get('input[type="submit"]').should('be.enabled');
+        cy.get('input[type="submit"]').should('be.enabled')
 
         // Call the postYourAdd() function
         cy.window().then(window => {
-            window.postYourAdd();
+            window.postYourAdd()
         });
 
         // Check for the successFrame element
-        cy.get('#successFrame').should('exist');
+        cy.get('#successFrame').should('exist')
 
         // Now you can proceed with capturing the success message
-        cy.get('#successFrame').invoke('text').as('successMessage');
+        cy.get('#successFrame').invoke('text').as('successMessage')
 
         cy.screenshot('Success message')
 
@@ -332,7 +299,6 @@ describe('Functional tests for registration form 3', () => {
          cy.get('input[type="submit"]').click()
          cy.get('h1').should('have.text', 'Submission received')
          cy.url().should('contain', '/cypress/fixtures/upload_file.html?')
-
     })
 
     it('Successful submission when all fields are filled with valid information (not uploading file)', () => {
@@ -340,18 +306,18 @@ describe('Functional tests for registration form 3', () => {
         fillAllFields()
 
         //submit button is enabled
-        cy.get('input[type="submit"]').should('be.enabled');
+        cy.get('input[type="submit"]').should('be.enabled')
 
         // Call the postYourAdd() function
         cy.window().then(window => {
-            window.postYourAdd();
-        });
+            window.postYourAdd()
+        })
 
         // Check for the successFrame element
-        cy.get('#successFrame').should('exist');
+        cy.get('#successFrame').should('exist')
 
         // Now you can proceed with capturing the success message
-        cy.get('#successFrame').invoke('text').as('successMessage');
+        cy.get('#successFrame').invoke('text').as('successMessage')
 
         cy.screenshot('Success message')
 
@@ -363,37 +329,38 @@ describe('Functional tests for registration form 3', () => {
          cy.get('input[type="submit"]').click()
          cy.get('h1').should('have.text', 'Submission received')
          cy.url().should('contain', '/cypress/fixtures/upload_file.html?')
-
     })
 
     it('Mandatory fields are missing', () => {
-        // code here
+        // Fill in only optional fields
+        onlyOptionalFields()
 
+        //Submit button is disabled
+        cy.get('input[type="submit"]').should('not.be.enabled')
     })
 
     it('Uploading and submitting a file', () => {
         // Define the full file path
-        const filePath = 'example_cypress.txt';
+        const filePath = 'example_cypress.txt'
     
         // Read the file contents
         cy.readFile(filePath, 'utf-8').then(fileContent => {
-            const blob = new Blob([fileContent], { type: 'text/plain' });
-            const file = new File([blob], 'example_cypress.txt');
+            const blob = new Blob([fileContent], { type: 'text/plain' })
+            const file = new File([blob], 'example_cypress.txt')
             cy.get('#myFile').then(input => {
-                const dt = new DataTransfer();
-                dt.items.add(file);
-                input[0].files = dt.files;
-            });
-
-        });
+                const dt = new DataTransfer()
+                dt.items.add(file)
+                input[0].files = dt.files
+            })
+        })
 
         // validate the uploaded file
-        cy.get('#myFile').invoke('val').as('uploadedFilePath');
+        cy.get('#myFile').invoke('val').as('uploadedFilePath')
         cy.get('@uploadedFilePath').then(filePath => {
-            const fileName = filePath.split('\\').pop(); // Extract the file name from the path
-            cy.log('Uploaded file name:', fileName);
-            expect(fileName).to.eq('example_cypress.txt');
-        });
+            const fileName = filePath.split('\\').pop() // Extract the file name from the path
+            cy.log('Uploaded file name:', fileName)
+            expect(fileName).to.eq('example_cypress.txt')
+        })
 
         // Submitting the file
         cy.get('button[type="submit"]').click()
@@ -401,7 +368,6 @@ describe('Functional tests for registration form 3', () => {
         // After submission the page redirects and displays success message
          cy.get('h1').should('have.text', 'Submission received')
          cy.url().should('contain', '/cypress/fixtures/upload_file.html?')
-    });
-
+    })
 })
 
