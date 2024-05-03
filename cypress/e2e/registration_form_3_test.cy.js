@@ -210,7 +210,7 @@ describe('Visual tests for registration form 3', () => {
         cy.get('span[ng-show="myForm.email.$error.required"]').should('not.be.visible')
     });
 
-    it.only('Check dropdown selection and its dependencies', () => {
+    it('Check dropdown selection and its dependencies', () => {
         // Assert on options available in the country dropdown
         cy.get('#country').find('option').should('have.length', 4)
         cy.get('#country').find('option').then(options => {
