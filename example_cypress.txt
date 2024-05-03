@@ -1,0 +1,1 @@
+Testing the file uploading in registration_form_3_test.cy.js
