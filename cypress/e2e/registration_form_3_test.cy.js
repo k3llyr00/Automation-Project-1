@@ -210,7 +210,7 @@ describe('Visual tests for registration form 3', () => {
         cy.get('span[ng-show="myForm.email.$error.required"]').should('not.be.visible')
     });
 
-    it('Check dropdown selection and its dependencies', () => {
+    it.only('Check dropdown selection and its dependencies', () => {
         // Assert on options available in the country dropdown
         cy.get('#country').find('option').should('have.length', 4)
         cy.get('#country').find('option').then(options => {
@@ -251,7 +251,18 @@ describe('Visual tests for registration form 3', () => {
             expect(actual).to.not.include('Vienna')
         })
 
+        // If the city is already chosen and the country is updated to empty value, then the city choice should be removed
+        cy.get('#country').select('Estonia')
+        cy.get('#city').select('Tallinn')
+        cy.get('#country').select('')
+
+        cy.get('#city').find('option').then(options => {
+            const actual = [...options].map(option => option.text)
+            expect(actual).to.not.include('Tallinn')
+        })
+
         //Selecting multiple options
+        cy.get('#country').select('Estonia')
         cy.get('#city')
         .select(['Tallinn', 'Haapsalu'])
         .invoke('val')
@@ -264,10 +275,10 @@ BONUS TASK: add functional tests for registration form 3
 Task list:
 * + Create second test suite for functional tests
 * Create tests to verify logic of the page:
-    * all fields are filled in + corresponding assertions +
-    * only mandatory fields are filled in + corresponding assertions +
+    * all fields are filled in + corresponding assertions
+    * only mandatory fields are filled in + corresponding assertions
     * mandatory fields are absent + corresponding assertions (try using function)
-    * add file functionlity(google yourself for solution!) +
+    * add file functionlity(google yourself for solution!)
  */
 
 describe('Functional tests for registration form 3', () => {
@@ -337,6 +348,14 @@ describe('Functional tests for registration form 3', () => {
 
         //Submit button is disabled
         cy.get('input[type="submit"]').should('not.be.enabled')
+    })
+
+    it('Attempting to insert invalid data', () => {
+        // Call the function for filling the mandatory fields
+        fillMandatoryFields()
+        // Attempt to insert future date into Birthday calendar
+        cy.get('#birthday').type('2025-06-04') // shouldn't be allowed
+        
     })
 
     it('Uploading and submitting a file', () => {

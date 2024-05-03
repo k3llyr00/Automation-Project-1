@@ -48,7 +48,7 @@ describe('Section 1: Functional tests', () => {
         cy.get('.submit_button').should('be.enabled')
     })
     
-    it('User can submit form with all fields added', ()=>{
+    it.only('User can submit form with all fields added', ()=>{
         //Steps for filling in all fields
         cy.get('#username').type(username)
         cy.get('#email').type(email)
