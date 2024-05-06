@@ -350,14 +350,6 @@ describe('Functional tests for registration form 3', () => {
         cy.get('input[type="submit"]').should('not.be.enabled')
     })
 
-    it('Attempting to insert invalid data', () => {
-        // Call the function for filling the mandatory fields
-        fillMandatoryFields()
-        // Attempt to insert future date into Birthday calendar
-        cy.get('#birthday').type('2025-06-04') // shouldn't be allowed
-        
-    })
-
     it('Uploading and submitting a file', () => {
         // Define the full file path
         const filePath = 'example_cypress.txt'
