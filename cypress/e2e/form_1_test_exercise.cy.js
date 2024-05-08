@@ -22,8 +22,7 @@ describe('This is first test suite', () => {
         //in order to activate submit button, user has to click somewhere outside the input field
         cy.get('h2').contains('Password').click()
 
-        cy.get('.submit_button').should('be.enabled');
-        cy.get('.submit_button').click()
+        cy.get('.submit_button').should('be.enabled').click()
 
         // Assert that both input and password error messages are not shown
         // next 2 lines check exactly the same, but using different approach
@@ -32,7 +31,6 @@ describe('This is first test suite', () => {
 
         // Assert that successful message is visible
         // next 2 lines check exactly the same, but using different approach
-        cy.get('#success_message').should('be.visible')
-        cy.get('#success_message').should('have.css', 'display', 'block')
+        cy.get('#success_message').should('be.visible').and('have.css', 'display', 'block')
     });
 })

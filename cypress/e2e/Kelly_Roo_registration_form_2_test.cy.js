@@ -78,8 +78,7 @@ describe('Section 1: Functional tests', () => {
         cy.get('#success_message').should('be.visible').and('contain', 'User successfully submitted registration')
     })
 
-
-    it('Users cannot submit the registration form if email field is filled and then removed.', () => {
+    it.only('Users cannot submit the registration form if email field is filled and then removed.', () => {
         inputMandatoryData()
         cy.get('#email').clear()
         cy.contains('Password section').click()

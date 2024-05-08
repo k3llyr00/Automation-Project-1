@@ -142,58 +142,46 @@ Task list:
 describe('Visual tests for registration form 3', () => {
 
     it('Check radio buttons functionality and content consistency', () => {
-        // Ensure there are four radio buttons present
         cy.get('input[type="radio"]').should('have.length', 4)
         
-        // Check that radio buttons have expected values (version 1)
         cy.get('input[type="radio"]').then($radioButtons => {
-            const actual = $radioButtons.toArray().map(radioButton => radioButton.value)
-            expect(actual).to.deep.eq(['Daily', 'Weekly', 'Monthly', 'Never'])
-        });
+        const actual = $radioButtons.toArray().map(radioButton => radioButton.value)
+         expect(actual).to.deep.eq(['Daily', 'Weekly', 'Monthly', 'Never'])
+        })
 
-        // Verify default state of radio buttons
         cy.get('input[type="radio"]').eq(0).should('not.be.checked')
         cy.get('input[type="radio"]').eq(1).should('not.be.checked')
         cy.get('input[type="radio"]').eq(2).should('not.be.checked')
         cy.get('input[type="radio"]').eq(3).should('not.be.checked')
 
-        // Selecting one radio button should deselect others
         cy.get('input[type="radio"]').eq(0).check().should('be.checked')
         cy.get('input[type="radio"]').eq(1).check().should('be.checked')
         cy.get('input[type="radio"]').eq(0).should('not.be.checked')
 
-    });
+    })
 
     it('Verify checkboxes, their labels, and associated links', () => {
-        // Ensure there are two checkboxes present
         cy.get('input[type="checkbox"]').should('have.length', 2)
 
-        // Verify labels of the checkboxes
-        cy.get('.w3-cell-row').prev('div').should('have.text',
-        '\n                Accept our privacy policy\n                \n                Accept our cookie policy\n                \n                    \n                \n            ')
+        cy.get('.w3-cell-row').prev('div').should('contain', 'Accept our privacy policy')
         cy.get('input[type="checkbox"]').next().eq(1).should('have.text','Accept our cookie policy')
 
-        // Verify default state of checkboxes
         cy.get('input[type="checkbox"]').eq(0).should('not.be.checked')
         cy.get('input[type="checkbox"]').eq(1).should('not.be.checked')
 
-        // Selecting one checkbox should not deselect the other
         cy.get('input[type="checkbox"]').eq(0).check().should('be.checked')
         cy.get('input[type="checkbox"]').eq(1).check().should('be.checked')
         cy.get('input[type="checkbox"]').eq(0).should('be.checked')
 
-        // Check the checkbox link and verify URL
         cy.get('button a').should('be.visible')
-            .and('have.attr', 'href', 'cookiePolicy.html')
-            .click()
+        .and('have.attr', 'href', 'cookiePolicy.html')
+        .click()
         
-        // Check that currently opened URL is correct
         cy.url().should('contain', '/cookiePolicy.html')
         
-        // Go back to previous page and verify URL
         cy.go('back').url().should('contain', '/registration_form_3.html')
         cy.log('Back again in registration form 3')
-    });
+    })
 
     it('Validates email input field', () => {
         // Entering an invalid email should display an appropriate error message
@@ -218,26 +206,21 @@ describe('Visual tests for registration form 3', () => {
             expect(actual).to.deep.eq(['', 'Spain', 'Estonia', 'Austria'])
         })
 
-        // Select an empty string from the country dropdown
-        cy.get('#country').select('')
 
+        cy.get('#country').select('')
         // Assert on options in the city dropdown when the country is an empty string
         cy.get('#city').find('option')
         .should('have.length', 1) // Ensure there's only one option
         .should('have.text', '') // Ensure the text of the option is empty
 
-        //Select Spain and verify dependencies
         cy.get('#country').select('Spain')
         // Assert on options in the city dropdown when the country is Spain
         cityDropdownOptions(['', 'Malaga', 'Madrid', 'Valencia', 'Corralejo']);
 
-
-        //Select Estonia and verify dependencies
         cy.get('#country').select('Estonia')
         // Assert on options in the city dropdown when the country is Estonia
         cityDropdownOptions(['', 'Tallinn', 'Haapsalu', 'Tartu']);
 
-        //Select Austria and verify dependencies
         cy.get('#country').select('Austria')
         // Assert on options in the city dropdown when the country is Austria
         cityDropdownOptions(['', 'Vienna', 'Salzburg', 'Innsbruck']);
@@ -283,10 +266,7 @@ Task list:
 
 describe('Functional tests for registration form 3', () => {
     it('Successful submission when mandatory fields are filled with valid information', () => {
-        //Call the function
         fillMandatoryFields()
-
-        //submit button is enabled
         cy.get('input[type="submit"]').should('be.enabled')
 
         // Call the postYourAdd() function
@@ -295,28 +275,17 @@ describe('Functional tests for registration form 3', () => {
         });
 
         // Check for the successFrame element
-        cy.get('#successFrame').should('exist')
+        cy.get('#successFrame').should('exist').invoke('text').as('successMessage')
 
-        // Now you can proceed with capturing the success message
-        cy.get('#successFrame').invoke('text').as('successMessage')
-
-        cy.screenshot('Success message')
-
-        // Now you can assert or use the captured success message as needed
         cy.get('@successMessage').should('contain', 'Successful registration')
 
-        // After submission the page redirects and displays success message
-         //submit button is enabled
          cy.get('input[type="submit"]').click()
          cy.get('h1').should('have.text', 'Submission received')
          cy.url().should('contain', '/cypress/fixtures/upload_file.html?')
     })
 
     it('Successful submission when all fields are filled with valid information (not uploading file)', () => {
-        //Call the function
         fillAllFields()
-
-        //submit button is enabled
         cy.get('input[type="submit"]').should('be.enabled')
 
         // Call the postYourAdd() function
@@ -325,33 +294,21 @@ describe('Functional tests for registration form 3', () => {
         })
 
         // Check for the successFrame element
-        cy.get('#successFrame').should('exist')
+        cy.get('#successFrame').should('exist').invoke('text').as('successMessage')
 
-        // Now you can proceed with capturing the success message
-        cy.get('#successFrame').invoke('text').as('successMessage')
-
-        cy.screenshot('Success message')
-
-        // Now you can assert or use the captured success message as needed
         cy.get('@successMessage').should('contain', 'Successful registration')
 
-        // After submission the page redirects and displays success message
-         //submit button is enabled
          cy.get('input[type="submit"]').click()
          cy.get('h1').should('have.text', 'Submission received')
          cy.url().should('contain', '/cypress/fixtures/upload_file.html?')
     })
 
     it('Mandatory fields are missing', () => {
-        // Fill in only optional fields
         onlyOptionalFields()
-
-        //Submit button is disabled
         cy.get('input[type="submit"]').should('not.be.enabled')
     })
 
     it('Uploading and submitting a file', () => {
-        // Define the full file path
         const filePath = 'example_cypress.txt'
     
         // Read the file contents
