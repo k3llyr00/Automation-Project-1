@@ -381,4 +381,3 @@ describe('Functional tests for registration form 3', () => {
          cy.url().should('contain', '/cypress/fixtures/upload_file.html?')
     })
 })
-
